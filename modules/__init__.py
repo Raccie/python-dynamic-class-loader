@@ -30,5 +30,5 @@ def get_class_from_name(class_name):
     """
     try:
         return next(c for c in _classes if c.__name__ == class_name)
-    except:
+    except StopIteration:
         return None
