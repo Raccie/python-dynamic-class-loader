@@ -9,27 +9,26 @@ import sys
 from .base import Species
 
 __module__ = sys.modules[__name__]
+_classes = []
 
-# Load all subclasses of the base class 'Species' found in current package
-package_dir = Path(__file__).resolve().parent
-for (_, module_name, _) in iter_modules([package_dir]):
+# populate classes with all subclasses of the base class 'Species' found in current package
+_package_dir = Path(__file__).resolve().parent
+for (_, module_name, _) in iter_modules([_package_dir]):
     # import the module and iterate through its attributes
     module = import_module(f"{__name__}.{module_name}")
     for attribute_name in dir(module):
         attribute = getattr(module, attribute_name)
 
         if isclass(attribute) and issubclass(attribute, Species):
-            globals()[attribute_name] = attribute
+            _classes.append(attribute)
 
 def get_class_from_name(class_name):
     """
     Takes a class_name and returns the class of the corresponding classname.
-    Only searches through loaded classes in this module.
+    Only searches through subclasses of 'Species' class.
+    Returns None if no matching class found.
     """
     try:
-        return next(
-            m[1] for m in getmembers(__module__, isclass)
-                if m[1].__module__.startswith('modules.') and m[1].__name__ == class_name
-        )
+        return next(c for c in _classes if c.__name__ == class_name)
     except:
         return None
